@@ -23,11 +23,13 @@ func main() {
 		pid    int
 		run    bool
 		printv bool
+		prompt string
 	)
 
 	flag.IntVar(&pid, "pid", 0, "Pid of running process to attach to.")
 	flag.BoolVar(&run, "run", false, "Compile program and begin debug session.")
 	flag.BoolVar(&printv, "v", false, "Print version number and exit.")
+	flag.StringVar(&prompt, "prompt", "(dlv)", "Set the debugging prompt. Default (dlv)")
 	flag.Parse()
 
 	if flag.NFlag() == 0 && len(flag.Args()) == 0 {
@@ -40,5 +42,5 @@ func main() {
 		os.Exit(0)
 	}
 
-	cli.Run(run, pid, flag.Args())
+	cli.Run(run, pid, prompt, flag.Args())
 }

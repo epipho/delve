@@ -15,7 +15,7 @@ import (
 
 const historyFile string = ".dbg_history"
 
-func Run(run bool, pid int, args []string) {
+func Run(run bool, pid int, prompt string, args []string) {
 	var (
 		dbp *proctl.DebuggedProcess
 		err error
@@ -52,7 +52,7 @@ func Run(run bool, pid int, args []string) {
 	fmt.Println("Type 'help' for list of commands.")
 
 	for {
-		cmdstr, err := promptForInput()
+		cmdstr, err := promptForInput(prompt)
 		if err != nil {
 			if err == io.EOF {
 				handleExit(dbp, 0)
@@ -122,9 +122,9 @@ func parseCommand(cmdstr string) (string, []string) {
 	return vals[0], vals[1:]
 }
 
-func promptForInput() (string, error) {
-	prompt := "(dlv) "
-	linep := goreadline.ReadLine(&prompt)
+func promptForInput(prompt string) (string, error) {
+	p := fmt.Sprintf("%s ", prompt)
+	linep := goreadline.ReadLine(&p)
 	if linep == nil {
 		return "", io.EOF
 	}
