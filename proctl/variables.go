@@ -473,6 +473,7 @@ func (thread *ThreadContext) extractVariableFromEntry(entry *dwarf.Entry) (*Vari
 	if !ok {
 		return nil, fmt.Errorf("type assertion failed")
 	}
+	fmt.Printf("NAME: %s\n", n)
 
 	offset, ok := entry.Val(dwarf.AttrType).(dwarf.Offset)
 	if !ok {
@@ -788,6 +789,28 @@ func (thread *ThreadContext) LocalVariables() ([]*Variable, error) {
 // FunctionArguments returns the name, value, and type of all current function arguments
 func (thread *ThreadContext) FunctionArguments() ([]*Variable, error) {
 	return thread.variablesByTag(dwarf.TagFormalParameter)
+}
+
+// PackageVariables returns the name, value, and type of all package variables in the application
+func (thread *ThreadContext) PackageVariables() ([]*Variable, error) {
+	reader := thread.Process.DwarfReader()
+
+	vars := make([]*Variable, 0)
+
+	for entry, err := reader.NextPackageVariable(); entry != nil; entry, err = reader.NextPackageVariable() {
+		if err != nil {
+			return nil, err
+		}
+
+		// Ignore errors trying to extract values
+		val, err := thread.extractVariableFromEntry(entry)
+		if err == nil {
+			fmt.Printf("%s %s\n", val.Name, val.Value)
+			vars = append(vars, val)
+		}
+	}
+
+	return vars, nil
 }
 
 // Sets the length of a slice.
