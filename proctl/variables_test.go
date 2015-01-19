@@ -37,7 +37,7 @@ func TestVariableEvaluation(t *testing.T) {
 	}
 
 	testcases := []varTest{
-		{"a1", "foo", "struct string", nil},
+		{"a1", "foofoofoofoofoofoo", "struct string", nil},
 		{"a2", "6", "int", nil},
 		{"a3", "7.23", "float64", nil},
 		{"a4", "[2]int [1 2]", "[2]int", nil},
@@ -156,7 +156,7 @@ func TestLocalVariables(t *testing.T) {
 	}{
 		{(*ThreadContext).LocalVariables,
 			[]varTest{
-				{"a1", "foo", "struct string", nil},
+				{"a1", "foofoofoofoofoofoo", "struct string", nil},
 				{"a2", "6", "int", nil},
 				{"a3", "7.23", "float64", nil},
 				{"a4", "[2]int [1 2]", "[2]int", nil},

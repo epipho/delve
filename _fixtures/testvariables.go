@@ -20,7 +20,7 @@ func barfoo() {
 
 func foobar(baz string, bar FooBar) {
 	var (
-		a1  = "foo"
+		a1  = "foofoofoofoofoofoo"
 		a2  = 6
 		a3  = 7.23
 		a4  = [2]int{1, 2}
