@@ -473,7 +473,6 @@ func (thread *ThreadContext) extractVariableFromEntry(entry *dwarf.Entry) (*Vari
 	if !ok {
 		return nil, fmt.Errorf("type assertion failed")
 	}
-	fmt.Printf("NAME: %s\n", n)
 
 	offset, ok := entry.Val(dwarf.AttrType).(dwarf.Offset)
 	if !ok {
@@ -493,6 +492,7 @@ func (thread *ThreadContext) extractVariableFromEntry(entry *dwarf.Entry) (*Vari
 
 	val, err := thread.extractValue(instructions, 0, t)
 	if err != nil {
+		fmt.Printf("NAME: %s\n", n)
 		return nil, err
 	}
 
@@ -619,6 +619,10 @@ func (thread *ThreadContext) extractValue(instructions []byte, addr int64, typ i
 		return thread.readInt(ptraddress, t.ByteSize)
 	case *dwarf.FloatType:
 		return thread.readFloat(ptraddress, t.ByteSize)
+	case *dwarf.UnspecifiedType:
+		return "(unknown)", nil
+	default:
+		fmt.Printf("TYPE: %T\n", typ)
 	}
 
 	return "", fmt.Errorf("could not find value for type %s", typ)
@@ -803,10 +807,13 @@ func (thread *ThreadContext) PackageVariables() ([]*Variable, error) {
 		}
 
 		// Ignore errors trying to extract values
-		val, err := thread.extractVariableFromEntry(entry)
+		_, err := thread.extractVariableFromEntry(entry)
+		if err != nil {
+			fmt.Printf("ERR: %s\n", err.Error())
+		}
 		if err == nil {
-			fmt.Printf("%s %s\n", val.Name, val.Value)
-			vars = append(vars, val)
+			//			fmt.Printf("%s %s\n", val.Name, val.Value)
+			//			vars = append(vars, val)
 		}
 	}
 

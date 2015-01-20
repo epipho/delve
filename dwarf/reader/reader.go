@@ -146,7 +146,7 @@ func (reader *Reader) NextMemberVariable() (*dwarf.Entry, error) {
 }
 
 // NextPackage moves the reader to the next debug entry that describes a package variable
-// any TagVariable entry that is not inside a sub prgram entry is considered a package variable
+// any TagVariable entry that is not inside a sub prgram entry and is marked external is considered a package variable
 func (reader *Reader) NextPackageVariable() (*dwarf.Entry, error) {
 	for entry, err := reader.Next(); entry != nil; entry, err = reader.Next() {
 		if err != nil {
@@ -154,7 +154,10 @@ func (reader *Reader) NextPackageVariable() (*dwarf.Entry, error) {
 		}
 
 		if entry.Tag == dwarf.TagVariable {
-			return entry, nil
+			ext, ok := entry.Val(dwarf.AttrExternal).(bool)
+			if ok && ext {
+				return entry, nil
+			}
 		}
 
 		// Ignore everything inside sub programs
