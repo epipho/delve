@@ -46,6 +46,7 @@ func TestVariableEvaluation(t *testing.T) {
 		{"a7", "*main.FooBar {Baz: 5, Bur: strum}", "*main.FooBar", nil},
 		{"a8", "main.FooBar2 {Bur: 10, Baz: feh}", "main.FooBar2", nil},
 		{"a9", "*main.FooBar nil", "*main.FooBar", nil},
+		{"a10", "ofo", "struct string", nil},
 		{"baz", "bazburzum", "struct string", nil},
 		{"neg", "-1", "int", nil},
 		{"i8", "1", "int8", nil},
@@ -61,7 +62,7 @@ func TestVariableEvaluation(t *testing.T) {
 	}
 
 	withTestProcess(executablePath, t, func(p *DebuggedProcess) {
-		pc, _, _ := p.GoSymTable.LineToPC(fp, 38)
+		pc, _, _ := p.GoSymTable.LineToPC(fp, 39)
 
 		_, err := p.Break(pc)
 		assertNoError(err, t, "Break() returned an error")
@@ -92,7 +93,7 @@ func TestVariableFunctionScoping(t *testing.T) {
 	}
 
 	withTestProcess(executablePath, t, func(p *DebuggedProcess) {
-		pc, _, _ := p.GoSymTable.LineToPC(fp, 38)
+		pc, _, _ := p.GoSymTable.LineToPC(fp, 39)
 
 		_, err := p.Break(pc)
 		assertNoError(err, t, "Break() returned an error")
@@ -165,6 +166,7 @@ func TestLocalVariables(t *testing.T) {
 				{"a7", "*main.FooBar {Baz: 5, Bur: strum}", "*main.FooBar", nil},
 				{"a8", "main.FooBar2 {Bur: 10, Baz: feh}", "main.FooBar2", nil},
 				{"a9", "*main.FooBar nil", "*main.FooBar", nil},
+				{"a10", "ofo", "struct string", nil},
 				{"f32", "1.2", "float32", nil},
 				{"i32", "[2]int32 [1 2]", "[2]int32", nil},
 				{"i8", "1", "int8", nil},
@@ -176,7 +178,7 @@ func TestLocalVariables(t *testing.T) {
 	}
 
 	withTestProcess(executablePath, t, func(p *DebuggedProcess) {
-		pc, _, _ := p.GoSymTable.LineToPC(fp, 38)
+		pc, _, _ := p.GoSymTable.LineToPC(fp, 39)
 
 		_, err := p.Break(pc)
 		assertNoError(err, t, "Break() returned an error")
