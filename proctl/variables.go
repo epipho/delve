@@ -617,10 +617,14 @@ func (thread *ThreadContext) extractValue(instructions []byte, addr int64, typ i
 		return thread.readIntArray(ptraddress, t)
 	case *dwarf.IntType:
 		return thread.readInt(ptraddress, t.ByteSize)
+	case *dwarf.UintType:
+		return thread.readUint(ptraddress, t.ByteSize)
 	case *dwarf.FloatType:
 		return thread.readFloat(ptraddress, t.ByteSize)
 	case *dwarf.UnspecifiedType:
 		return "(unknown)", nil
+	case *dwarf.BoolType:
+		return thread.readBool(ptraddress)
 	default:
 		fmt.Printf("TYPE: %T\n", typ)
 	}
@@ -698,7 +702,7 @@ func (thread *ThreadContext) readIntArray(addr uintptr, t *dwarf.ArrayType) (str
 }
 
 func (thread *ThreadContext) readInt(addr uintptr, size int64) (string, error) {
-	var n int
+	var n int64
 
 	val, err := thread.readMemory(addr, uintptr(size))
 	if err != nil {
@@ -707,16 +711,38 @@ func (thread *ThreadContext) readInt(addr uintptr, size int64) (string, error) {
 
 	switch size {
 	case 1:
-		n = int(val[0])
+		n = int64(val[0])
 	case 2:
-		n = int(binary.LittleEndian.Uint16(val))
+		n = int64(binary.LittleEndian.Uint16(val))
 	case 4:
-		n = int(binary.LittleEndian.Uint32(val))
+		n = int64(binary.LittleEndian.Uint32(val))
 	case 8:
-		n = int(binary.LittleEndian.Uint64(val))
+		n = int64(binary.LittleEndian.Uint64(val))
 	}
 
-	return strconv.Itoa(n), nil
+	return strconv.FormatInt(n, 10), nil
+}
+
+func (thread *ThreadContext) readUint(addr uintptr, size int64) (string, error) {
+	var n uint64
+
+	val, err := thread.readMemory(addr, uintptr(size))
+	if err != nil {
+		return "", err
+	}
+
+	switch size {
+	case 1:
+		n = uint64(val[0])
+	case 2:
+		n = uint64(binary.LittleEndian.Uint16(val))
+	case 4:
+		n = uint64(binary.LittleEndian.Uint32(val))
+	case 8:
+		n = uint64(binary.LittleEndian.Uint64(val))
+	}
+
+	return strconv.FormatUint(n, 10), nil
 }
 
 func (thread *ThreadContext) readFloat(addr uintptr, size int64) (string, error) {
@@ -738,6 +764,19 @@ func (thread *ThreadContext) readFloat(addr uintptr, size int64) (string, error)
 	}
 
 	return "", fmt.Errorf("could not read float")
+}
+
+func (thread *ThreadContext) readBool(addr uintptr) (string, error) {
+	val, err := thread.readMemory(addr, uintptr(1))
+	if err != nil {
+		return "", err
+	}
+
+	if val[0] == 0 {
+		return "false", nil
+	}
+
+	return "true", nil
 }
 
 func (thread *ThreadContext) readMemory(addr uintptr, size uintptr) ([]byte, error) {
